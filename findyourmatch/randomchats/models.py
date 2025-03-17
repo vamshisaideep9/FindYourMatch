@@ -16,6 +16,19 @@ class ChatSession(models.Model):
         return f"Chat between {self.user1} and {self.user2}"
     
 
+    @staticmethod
+    def get_or_create_room(user1, user2):
+        """
+        Ensure a unique chat room exists for two users
+        """
+        room, created - ChatSession.objects.get_or_create(
+            user1=min(user1, user2, key=lambda x: x.id),
+            user2=max(user1, user2, key=lambda x: x.id),
+        )
+        return room
+    
+    
+
 
 class Message(models.Model):
     chat_session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name="messages")
