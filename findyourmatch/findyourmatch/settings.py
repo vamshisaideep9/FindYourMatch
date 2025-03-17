@@ -33,6 +33,12 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+
+    #django channels 
+    "daphne", #ASGI server
+    "channels", #Django channels
+
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,11 +46,14 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    #Thirdpartyapps
+    #Third party apps
     "rest_framework",
     "rest_framework_simplejwt",
 
+    #local apps
     "users",
+    "userprofile",
+    "randomchats",
 ]
 
 
@@ -109,6 +118,15 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT")
+    },
+
+    "chats_db": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB2_NAME"),
+        "USER": os.getenv("DB2_USER"),
+        "PASSWORD": os.getenv("DB2_PASSWORD"),
+        "HOST": os.getenv("DB2_HOST"),
+        "PORT": os.getenv("DB2_PORT")
     }
 }
 
@@ -163,3 +181,24 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# DATABASE ROUTERs
+
+DATABASE_ROUTERS = ["randomchats.db_router.ChatDBRouter"]
+
+
+
+#Websocket configuration
+ASGI_APPLICATION = "findyourmatch.asgi.application" 
+
+
+#Redis for channels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)], #redis host
+        },
+    },
+}

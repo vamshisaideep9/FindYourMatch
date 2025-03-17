@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User
-from .serializers import SignupSerializer
+from .serializers import SignupSerializer, UserSerializer
 from .serializers import (
     EmailVerificationSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, UsernameResetSerializer
 )
@@ -31,8 +31,12 @@ class LoginView(APIView):
         if user is None:
             return Response({"error": "Invalid email or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        if not user.is_verified:  
-            return Response({"error": "Email not verified. Please check your inbox."}, status=status.HTTP_403_FORBIDDEN)
+
+        """
+        Disabling user authentication for development purposes
+        """
+        # if not user.is_verified:  
+        #     return Response({"error": "Email not verified. Please check your inbox."}, status=status.HTTP_403_FORBIDDEN)
 
         if user:
             refresh = RefreshToken.for_user(user)
@@ -103,3 +107,10 @@ class UsernameResetView(APIView):
         if serializer.is_valid():
             return Response({"message": "New username sent via email."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class GetUsers(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    

@@ -3,7 +3,7 @@ from .views import SignupView, LoginView
 from .views import (
     EmailVerificationView, VerifyEmailView,
     PasswordResetView, PasswordResetConfirmView,
-    UsernameResetView
+    UsernameResetView, GetUsers
 )
 
 urlpatterns = [
@@ -18,4 +18,5 @@ urlpatterns += [
     path('reset-password/', PasswordResetView.as_view(), name='password-reset'),
     path('reset-password-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     path('reset-username/', UsernameResetView.as_view(), name='username-reset'),
+    path('get-users/', GetUsers.as_view(), name='get-users')
 ]
