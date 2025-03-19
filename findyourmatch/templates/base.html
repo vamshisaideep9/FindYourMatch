@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FindYourMatch - Home</title>
+    <link rel="stylesheet" href="{% static 'findyourmatch/static/styles.css' %}">
+    <style>
+        /* Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            color: white;
+            text-align: center;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 50px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            margin: 0 15px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .navbar a:hover {
+            color: #FFD700;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .auth-buttons a {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: 2px solid white;
+        }
+
+        .auth-buttons a.signup {
+            background: #FFD700;
+            color: black;
+        }
+
+        .auth-buttons a.logout {
+            background: transparent;
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 100px;
+            padding: 100px 20px;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 20px;
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+
+        .chat-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 18px;
+            background: #FFD700;
+            color: black;
+            font-weight: bold;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: 0.3s ease-in-out;
+        }
+
+        .chat-btn:hover {
+            background: white;
+            color: black;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 50px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><a href="/">FindYourMatch</a></div>
+        <div>
+            <a href="/chat">Chat</a>
+        </div>
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+                <a href="/logout" class="logout">Logout</a>
+            {% else %}
+                <a href="/signup" class="signup">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Find Your Perfect Match</h1>
+        <p>Chat with random people and discover meaningful connections.</p>
+        <a href="/chat" class="chat-btn">Start Chatting</a>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 FindYourMatch. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

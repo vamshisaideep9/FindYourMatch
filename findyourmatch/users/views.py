@@ -114,3 +114,11 @@ class GetUsers(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     
+
+
+
+#home page
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'home.html')
