@@ -34,11 +34,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 
-    #django channels 
-    "daphne", #ASGI server
-    "channels", #Django channels
-
-
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -53,7 +48,6 @@ INSTALLED_APPS = [
     #local apps
     "users",
     "userprofile",
-    "randomchats",
 ]
 
 
@@ -104,7 +98,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "findyourmatch.wsgi.application"
 
 
 # Database
@@ -189,22 +182,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-# DATABASE ROUTERs
-
-DATABASE_ROUTERS = ["randomchats.db_router.ChatDBRouter"]
-
-
-
 #Websocket configuration
 ASGI_APPLICATION = "findyourmatch.asgi.application" 
 
 
-#Redis for channels
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)], #redis host
-        },
-    },
-}
