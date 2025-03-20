@@ -1,0 +1,29 @@
+version: 1
+disable_existing_loggers: False
+
+formatters:
+  verbose:
+    format: "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s"
+  simple:
+    format: "%(levelname)s %(message)s"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: verbose
+    level: DEBUG
+  file:
+    class: logging.FileHandler
+    filename: c:/Users/vamsh/OneDrive/Desktop/Findyourmatch/FindYourMatch/logs/randomchats.log
+    formatter: verbose
+    level: INFO
+
+loggers:
+  findyourmatch.randomchats.consumers:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: no
+
+root:
+  level: INFO
+  handlers: [console]

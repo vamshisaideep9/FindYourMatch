@@ -12,11 +12,25 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+import yaml
+import logging.config
+
+
+LOGGING_CONFIG_FILE = os.path.join(BASE_DIR, 'logging.yaml')
+
+if os.path.exists(LOGGING_CONFIG_FILE):
+    with open(LOGGING_CONFIG_FILE, 'r') as f:
+        config = yaml.safe_load(f.read())
+    logging.config.dictConfig(config)
+else:
+    # Fallback logging configuration
+    logging.basicConfig(level=logging.INFO)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -34,6 +48,9 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
 
+    "daphne",
+    "channels",
+
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,7 +65,11 @@ INSTALLED_APPS = [
     #local apps
     "users",
     "userprofile",
+    "randomchats",
 ]
+
+
+ASGI_APPLICATION = "findyourmatch.asgi.application" 
 
 
 AUTH_USER_MODEL = "users.User"
@@ -58,6 +79,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -111,15 +141,6 @@ DATABASES = {
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT")
-    },
-
-    "chats_db": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB2_NAME"),
-        "USER": os.getenv("DB2_USER"),
-        "PASSWORD": os.getenv("DB2_PASSWORD"),
-        "HOST": os.getenv("DB2_HOST"),
-        "PORT": os.getenv("DB2_PORT")
     }
 }
 
@@ -170,9 +191,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'static'),
+# ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -183,6 +204,18 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 #Websocket configuration
-ASGI_APPLICATION = "findyourmatch.asgi.application" 
+#WSGI_APPLICATION = "findyourmatch.wsgi.application" 
+
+
+REDIS_URL = 'redis://127.0.0.1:6379'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],  # Redis server address
+        },
+    },
+}
 
 
