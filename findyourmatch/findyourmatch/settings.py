@@ -61,11 +61,15 @@ INSTALLED_APPS = [
     #Third party apps
     "rest_framework",
     "rest_framework_simplejwt",
+    "celery",
+    "django_celery_results",
+
 
     #local apps
     "users",
     "userprofile",
     "randomchats",
+    "chatbot",
 ]
 
 
@@ -83,7 +87,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1000000),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
     'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
     'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
@@ -127,6 +131,9 @@ TEMPLATES = [
         },
     },
 ]
+
+
+
 
 
 
@@ -213,9 +220,20 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],  # Redis server address
+            'hosts': [('127.0.0.1', 6379)], 
         },
     },
 }
+
+
+
+#celery configuration
+
+CELERY_BROKER_URL = "pyamqp://guest@localhost//" 
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+
 
 

@@ -11,7 +11,6 @@ from .models import ChatSession, Message
 logger = logging.getLogger("findyourmatch.randomchats.consumers")
 User = get_user_model()
 
-# Lua script to atomically pop two elements from a list if length >= 2
 POP_TWO_LUA = """
 local len = redis.call('LLEN', KEYS[1])
 if tonumber(len) >= 2 then
@@ -33,7 +32,6 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
         self.last_message_time = 0  # For simple rate limiting
 
     async def connect(self):
-        # Clear any stale state
         self.group_name = None
         self.joined = False
         self.session = None
@@ -53,15 +51,12 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        # End any existing active session by marking it inactive (soft deletion).
         existing_session = await self.get_existing_session()
         if existing_session:
             await self.end_session(existing_session)
             logger.info(f"{self.user.username} had an existing session; ended it.")
 
         await self.accept()
-
-        # Add user to waiting queue if not already present.
         if not await self.is_user_in_queue():
             await self.add_to_waiting_queue()
         await self.attempt_pairing()
@@ -104,8 +99,7 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
             if not message:
                 logger.info(f"Empty message received from {self.user.username}")
                 return
-
-            # Rate limit: require at least 0.5 seconds between messages.
+            
             now = time.time()
             if now - self.last_message_time < 0.5:
                 logger.info(f"Message rate limit exceeded for {self.user.username}")
@@ -208,8 +202,6 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
                 await self.redis.rpush('waiting_queue', str(self.user.id))
                 logger.info(f"Other user {other_user_id} not found; requeued {self.user.username}.")
                 return
-
-            # Check if a session already exists for these two users (with canonical ordering)
             existing = await self.get_existing_session_for_users(other_user)
             if existing and await self.is_session_active(existing):
                 self.session = existing
@@ -224,7 +216,6 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
             user1_channel = await self.redis.get(f"user_channel:{min(self.user.id, other_user.id)}")
             user2_channel = await self.redis.get(f"user_channel:{max(self.user.id, other_user.id)}")
             if user1_channel and user2_channel:
-                # Send set_session to both users.
                 for channel, uid in ((user1_channel, min(self.user.id, other_user.id)),
                                      (user2_channel, max(self.user.id, other_user.id))):
                     await self.channel_layer.send(
@@ -282,7 +273,6 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_existing_session(self):
-        # Filter to active sessions only.
         return ChatSession.objects.filter(
             models.Q(user1=self.user) | models.Q(user2=self.user),
             active=True
@@ -290,7 +280,6 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_existing_session_for_users(self, other_user):
-        # Canonically order the two users by id.
         user_ids = sorted([self.user.id, other_user.id])
         return ChatSession.objects.filter(
             user1_id=user_ids[0],
@@ -331,14 +320,12 @@ class RandomChatConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def create_chat_session(self, other_user):
-        # Ensure canonical ordering: lower id as user1.
         user_ids = sorted([self.user.id, other_user.id])
         user1 = User.objects.get(id=user_ids[0])
         user2 = User.objects.get(id=user_ids[1])
         try:
             return ChatSession.objects.create(user1=user1, user2=user2, active=True)
         except IntegrityError:
-            # If the session already exists, retrieve it. Optionally, reactivate if needed.
             existing = ChatSession.objects.get(user1_id=user_ids[0], user2_id=user_ids[1])
             if not existing.active:
                 existing.active = True

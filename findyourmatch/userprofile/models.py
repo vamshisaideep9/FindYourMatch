@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q
 from enum import Enum
 
@@ -97,15 +98,6 @@ class RelationshipGoalsChoices(Enum):
     def choices(cls):
         return [(choice.value, choice.name.replace("_", " ").capitalize()) for choice in cls]
 
-class HeightUnitChoices(Enum):
-    CM = "cm"
-    FEET = "ft"
-
-    @classmethod
-    def choices(cls):
-        return [(choice.value, choice.name.replace("_", " ").capitalize()) for choice in cls]
-
-
 
 class AccountStatus(Enum):
     ACTIVE = "Active"
@@ -117,10 +109,16 @@ class AccountStatus(Enum):
     def choices(cls):
         return [(choice.value, choice.name.replace("_", " ").capitalize()) for choice in cls]
 
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
 
 class Interest(models.Model):
     name = models.CharField(max_length=50, unique=True)
-
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="interests", default=12)
     def __str__(self):
         return self.name
     
@@ -136,14 +134,16 @@ class Language(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_profile")
     display_name = models.CharField(max_length=30, null=True, blank=True, unique=True)
-    bio = models.TextField(blank=True)
+    bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to="profile_pictures/", blank=True, null=True)
     
 
     #personal-info
     gender = models.CharField(max_length=10, choices=GenderChoices.choices(), blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
-    height_unit = models.CharField(max_length=2, choices=HeightUnitChoices.choices(), default="cm")
+
+    height_feet = models.IntegerField(null=True, blank=True)
+    height_inches = models.IntegerField(null=True, blank=True)
     ethnicity = models.CharField(max_length=50, choices=EthnicityChoices.choices(), blank=True, null=True)
     religion = models.CharField(max_length=50, choices=ReligionChoices.choices(), blank=True, null=True)
     languages_spoken = models.ManyToManyField(Language, related_name="speakers", blank=True)
@@ -156,14 +156,13 @@ class UserProfile(models.Model):
     relationship_goals = models.CharField(
         max_length=30, choices=RelationshipGoalsChoices.choices(), null=True, blank=True
     )
-    interests = models.ManyToManyField(Interest, related_name="interested_users", blank=True)
-    age_preference_min = models.IntegerField(default=18)
-    age_preference_max = models.IntegerField(default=99)
+    interests = models.ManyToManyField(Interest, related_name="user_profiles", blank=True)
+    age_preference_min = models.IntegerField(default=18, validators=[MinValueValidator(18), MaxValueValidator(99)])
+    age_preference_max = models.IntegerField(default=99, validators=[MinValueValidator(18), MaxValueValidator(99)])
     distance_preference = models.IntegerField(default=50)
 
 
     #life style
-    hobbies = models.TextField(blank=True)
     education = models.CharField(max_length=100, blank=True, null=True)
     occupation = models.CharField(max_length=100, blank=True, null=True)
     smoking = models.CharField(max_length=30, choices=SmokingChoices.choices(), null=True, blank=True)
@@ -186,8 +185,8 @@ class UserInteractions(models.Model):
     def get_matches(self):
         """Get mutual likes (matches) dynamically."""
         return UserProfile.objects.filter(
-        Q(liked_by__user_interactions__user=self.user) & Q(user_interactions__likes=self.user.user_profile)
-        )
+        liked_by__user_interactions__user=self.user 
+        ).filter(user_interactions_likes=self.user.user_profile)
 
     def __str__(self):
         return f"Interactions of {self.user.email}"
@@ -207,7 +206,7 @@ class UserLike(models.Model):
 
 class UserAccountSettings(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_account_settings")
-    account_status = models.CharField(max_length=30, choices=AccountStatus.choices(), blank=True, null=True)
+    account_status = models.CharField(max_length=30, choices=AccountStatus.choices(), blank=True, null=True, default=AccountStatus.ACTIVE.value)
     is_verified = models.BooleanField(default=False)
     last_seen = models.DateTimeField(auto_now=True)
 

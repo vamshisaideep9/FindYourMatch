@@ -22,5 +22,7 @@ from users.views import home
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('api/auth/', include('users.urls')),
-    path('', home, name='home')
+    path('', home, name='home'),
+    path('profiles/', include("userprofile.urls")),
+    path('chatbot/', include('chatbot.urls')),
 ]

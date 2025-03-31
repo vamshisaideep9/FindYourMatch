@@ -1,0 +1,39 @@
+{
+    "yaml.schemas": {
+        "yamlVersion": "1.2",
+        "trace": {
+            "server": "off"
+        },
+        "schemas": {},
+        "format": {
+            "enable": true,
+            "singleQuote": false,
+            "bracketSpacing": true,
+            "proseWrap": "preserve",
+            "printWidth": 80
+        },
+        "validate": true,
+        "hover": true,
+        "completion": true,
+        "customTags": [],
+        "schemaStore": {
+            "enable": true,
+            "url": "https://www.schemastore.org/api/json/catalog.json"
+        },
+        "disableAdditionalProperties": false,
+        "disableDefaultProperties": false,
+        "maxItemsComputed": 5000,
+        "suggest": {
+            "parentSkeletonSelectedFirst": false
+        },
+        "style": {
+            "flowMapping": "allow",
+            "flowSequence": "allow"
+        },
+        "keyOrdering": false,
+        "extension": {
+            "recommendations": "true"
+        },
+        "https://www.artillery.io/schema.json": []
+    }
+}
