@@ -14,15 +14,15 @@ services:
       redis:
         condition: service_started
     environment:
-      DJANGO_SETTINGS_MODULE: findyourmatch.settings
-      DEBUG: "True"
-      DB_NAME: findyourmatch_db
-      DB_USER: findyourmatch
-      DB_PASSWORD: qweasd
-      DB_HOST: postgres_db
-      DB_PORT: "5432"
-      STATIC_ROOT: /app/staticfiles
-      MEDIA_ROOT: /app/media
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE}
+      DEBUG: ${DEBUG}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      STATIC_ROOT: ${STATIC_ROOT}
+      MEDIA_ROOT: ${MEDIA_ROOT}
     networks:
       - findyourmatch_network
     healthcheck:
@@ -35,9 +35,9 @@ services:
     image: postgres:15
     container_name: findyourmatch_postgres
     environment:
-      POSTGRES_USER: findyourmatch
-      POSTGRES_PASSWORD: qweasd
-      POSTGRES_DB: findyourmatch_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
