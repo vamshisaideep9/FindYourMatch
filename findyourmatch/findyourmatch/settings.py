@@ -18,20 +18,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import yaml
-import logging.config
-
-
-LOGGING_CONFIG_FILE = os.path.join(BASE_DIR, 'logging.yaml')
-
-if os.path.exists(LOGGING_CONFIG_FILE):
-    with open(LOGGING_CONFIG_FILE, 'r') as f:
-        config = yaml.safe_load(f.read())
-    logging.config.dictConfig(config)
-else:
-    # Fallback logging configuration
-    logging.basicConfig(level=logging.INFO)
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -41,15 +27,13 @@ SECRET_KEY = "django-insecure-vb-2^jfjm_&1p6%b^s6y5^9tfd-^4)vwcwgvzq*cxt$57sfbc8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
 
 # Application definition
 
 INSTALLED_APPS = [
 
     "daphne",
-    "channels",
+    #"channels",
 
     "django.contrib.admin",
     "django.contrib.auth",
@@ -61,8 +45,8 @@ INSTALLED_APPS = [
     #Third party apps
     "rest_framework",
     "rest_framework_simplejwt",
-    "celery",
-    "django_celery_results",
+    # "celery",
+    # "django_celery_results",
 
 
     #local apps
@@ -132,11 +116,6 @@ TEMPLATES = [
     },
 ]
 
-
-
-
-
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -197,12 +176,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = "static/"
-
 # STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static'),
+#     os.path.join(BASE_DIR, "static"),
 # ]
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -220,20 +200,21 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)], 
+            'hosts': [('redis', 6379)], 
         },
     },
 }
 
 
+ALLOWED_HOSTS = ['127.0.0.1', '0.0.0.0', 'localhost']
 
 #celery configuration
 
-CELERY_BROKER_URL = "pyamqp://guest@localhost//" 
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_SERIALIZER = 'json'
+# CELERY_BROKER_URL = "pyamqp://guest@localhost//" 
+# CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
+# CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
 
 
 

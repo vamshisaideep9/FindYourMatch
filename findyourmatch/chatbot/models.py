@@ -21,4 +21,4 @@ class UserInterestResponse(models.Model):
         unique_together = ("user", "question")
 
     def __str__(self):
-        return f"{self.user.username} - {self.question.text}: {'Yes' if self.response else "No"}"
+        return f"{self.user.username} - {self.question.text}: {'Yes' if self.response else 'No'}"

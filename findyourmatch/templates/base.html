@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FindYourMatch{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'mingle-pink': '#ff7eb6',
+                        'mingle-magenta': '#ff0090',
+                        'mingle-lightPink': '#ffe5f0',
+                        'mingle-darkPink': '#d44a99',
+                        'mingle-blue': '#8B5CF6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-sm border-b border-gray-200">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="#" class="flex items-center">
+                    <span class="text-2xl font-bold bg-gradient-to-r from-mingle-pink to-mingle-magenta text-transparent bg-clip-text">
+                        Findyourmatch
+                    </span>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#" class="text-gray-700 hover:text-mingle-pink font-medium">
+                        Home
+                    </a>
+                    <a href="#" class="text-gray-700 hover:text-mingle-pink font-medium">
+                        Random Chat
+                    </a>
+                    <a href="#" class="text-gray-700 hover:text-mingle-pink font-medium">
+                        Dating
+                    </a>
+                    <a href="#" class="text-gray-700 hover:text-mingle-pink font-medium">
+                        Marriage
+                    </a>
+                </div>
+
+                <!-- Sign Up Button -->
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="#" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 py-2 border border-mingle-pink text-mingle-pink hover:bg-mingle-pink hover:text-white transition-colors">
+                        Log in
+                    </a>
+                    <a href="#" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium h-10 px-4 py-2 bg-mingle-pink text-white hover:bg-mingle-magenta transition-colors">
+                        Sign up
+                    </a>
+                </div>
+
+
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -25,4 +25,5 @@ urlpatterns = [
     path('', home, name='home'),
     path('profiles/', include("userprofile.urls")),
     path('chatbot/', include('chatbot.urls')),
+    path('randomchats/', include('randomchats.urls'))
 ]

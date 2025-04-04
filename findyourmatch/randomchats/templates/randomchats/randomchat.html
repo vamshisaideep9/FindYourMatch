@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Chat</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    #status {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+    #chat {
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #chat p {
+      margin: 5px 0;
+    }
+    #inputArea {
+      display: none;
+      margin-top: 10px;
+    }
+    #messageInput {
+      width: 70%;
+      padding: 8px;
+      font-size: 1em;
+    }
+    #sendButton {
+      padding: 8px 16px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Random Chat</h1>
+  <div id="status">Connecting to chat server...</div>
+  <div id="chat"></div>
+  <div id="inputArea">
+    <input id="messageInput" type="text" placeholder="Type your message here..." />
+    <button id="sendButton">Send</button>
+  </div>
+
+  <script>
+    const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+    const jwtToken = localStorage.getItem('jwt_token'); 
+    const socketUrl = jwtToken 
+      ? wsProtocol + window.location.host + "/ws/random_chat/?token=" + jwtToken 
+      : wsProtocol + window.location.host + "/ws/random_chat/";
+    
+    const statusDiv = document.getElementById("status");
+    const chatDiv = document.getElementById("chat");
+    const inputArea = document.getElementById("inputArea");
+    const messageInput = document.getElementById("messageInput");
+    const sendButton = document.getElementById("sendButton");
+
+    let chatSocket;
+
+    function connectSocket() {
+      chatSocket = new WebSocket(socketUrl);
+
+      chatSocket.onopen = function() {
+        statusDiv.textContent = "Connected. Waiting for a match...";
+      };
+
+      chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.event === "paired") {
+          statusDiv.textContent = "Matched with: " + data.usernames.join(" and ");
+          inputArea.style.display = "block";
+        }
+        else if (data.event === "message") {
+          const messageElem = document.createElement("p");
+          messageElem.textContent = data.username + ": " + data.message;
+          chatDiv.appendChild(messageElem);
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+        else if (data.event === "user_left") {
+          statusDiv.textContent = "User " + data.username + " left. " + data.message;
+          inputArea.style.display = "none";
+        }
+        else if (data.message) {
+          statusDiv.textContent = data.message;
+        }
+        else {
+          console.log("Unknown event received:", data);
+        }
+      };
+
+      chatSocket.onerror = function(error) {
+        console.error("WebSocket error observed:", error);
+        statusDiv.textContent = "Connection error. Retrying in 5 seconds...";
+        setTimeout(connectSocket, 5000);
+      };
+
+      chatSocket.onclose = function() {
+        statusDiv.textContent = "Disconnected from chat server. Retrying in 5 seconds...";
+        inputArea.style.display = "none";
+        setTimeout(connectSocket, 5000);
+      };
+    }
+    sendButton.addEventListener("click", function() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+      chatSocket.send(JSON.stringify({ message: message }));
+      messageInput.value = "";
+    });
+
+    messageInput.addEventListener("keyup", function(e) {
+      if (e.key === "Enter") {
+        sendButton.click();
+      }
+    });
+    connectSocket();
+  </script>
+</body>
+</html>

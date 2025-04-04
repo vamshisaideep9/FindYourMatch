@@ -1,0 +1,85 @@
+services:
+  web:
+    build: .
+    deploy:
+      replicas: 3
+    command: sh -c "python manage.py migrate && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 findyourmatch.asgi:application"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DJANGO_SETTINGS_MODULE: findyourmatch.settings
+      DEBUG: "True"
+      DB_NAME: findyourmatch_db
+      DB_USER: findyourmatch
+      DB_PASSWORD: qweasd
+      DB_HOST: postgres_db
+      DB_PORT: "5432"
+      STATIC_ROOT: /app/staticfiles
+      MEDIA_ROOT: /app/media
+    networks:
+      - findyourmatch_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 10s
+      retries: 3
+      timeout: 5s
+
+  postgres_db:
+    image: postgres:15
+    container_name: findyourmatch_postgres
+    environment:
+      POSTGRES_USER: findyourmatch
+      POSTGRES_PASSWORD: qweasd
+      POSTGRES_DB: findyourmatch_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - findyourmatch_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U findyourmatch -d findyourmatch_db"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  redis:
+    image: redis:alpine
+    container_name: findyourmatch_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - findyourmatch_network
+    restart: always
+
+  nginx:
+    image: nginx
+    container_name: findyourmatch_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - findyourmatch_network
+    restart: always
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+
+networks:
+  findyourmatch_network:
+    driver: bridge
