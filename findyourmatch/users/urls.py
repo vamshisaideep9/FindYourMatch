@@ -3,12 +3,23 @@ from .views import SignupView, LoginView
 from .views import (
     EmailVerificationView, VerifyEmailView,
     PasswordResetView, PasswordResetConfirmView,
-    UsernameResetView, GetUsers
+    UsernameResetView, GetUsers, LogoutView
 )
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+
+
+
 
 urlpatterns = [
     path('signup/', SignupView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='token_blacklist'),
+]
+
+urlpatterns += [
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 

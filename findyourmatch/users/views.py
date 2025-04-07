@@ -5,7 +5,7 @@ from django.utils.encoding import force_str
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .models import User
@@ -13,6 +13,10 @@ from .serializers import SignupSerializer, UserSerializer
 from .serializers import (
     EmailVerificationSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer, UsernameResetSerializer
 )
+from rest_framework_simplejwt.tokens import RefreshToken
+from .custom_throttling import LoginRateThrottle
+from rest_framework.decorators import throttle_classes
+
 # Signup View
 class SignupView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -20,6 +24,8 @@ class SignupView(generics.CreateAPIView):
     permission_classes = [AllowAny]
 
 # Login View
+
+@throttle_classes([LoginRateThrottle])
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -97,6 +103,23 @@ class PasswordResetConfirmView(APIView):
         if serializer.is_valid():
             return Response({"message": "Password reset successful."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class LogoutView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 # Username Reset View
 class UsernameResetView(APIView):
@@ -108,6 +131,9 @@ class UsernameResetView(APIView):
             return Response({"message": "New username sent via email."}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+
+
 
 
 class GetUsers(generics.ListAPIView):

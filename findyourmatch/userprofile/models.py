@@ -47,16 +47,6 @@ class DrinkingChoices(Enum):
         return [(choice.value, choice.name.replace("_", " ").capitalize()) for choice in cls]
     
 
-class PetChoices(Enum):
-    DOG = "Dogs"
-    CAT = "Cats"
-    OTHER = "Other"
-
-    @classmethod
-    def choices(cls):
-        return [(choice.value, choice.name.replace("_", " ").capitalize()) for choice in cls]
-    
-
 
 class EthnicityChoices(Enum):
     ASIAN = "Asian"
@@ -117,7 +107,7 @@ class Category(models.Model):
 
 
 class Interest(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50, unique=False)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="interests", default=12)
     def __str__(self):
         return self.name
@@ -167,7 +157,6 @@ class UserProfile(models.Model):
     occupation = models.CharField(max_length=100, blank=True, null=True)
     smoking = models.CharField(max_length=30, choices=SmokingChoices.choices(), null=True, blank=True)
     drinking = models.CharField(max_length=30, choices=DrinkingChoices.choices(), null=True, blank=True)
-    pets = models.CharField(max_length=30, choices=PetChoices.choices(), null=True, blank=True)
 
 
     def __str__(self):

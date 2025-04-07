@@ -1,5 +1,7 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, generics
+
+from rest_framework import viewsets, permissions, generics, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .models import UserProfile, UserLike, UserInteractions, UserAccountSettings, Category, Interest, Language
 from .serializers import (
     UserProfileSerializer,
@@ -29,6 +31,21 @@ class UserProfileViewSet(viewsets.ModelViewSet):
         if user.is_superuser:
             return UserProfile.objects.all()
         return UserProfile.objects.filter(user=self.request.user)
+    
+
+    def create(self, request, *args, **kwargs):
+        if UserProfile.objects.filter(user=self.request.user).exists():
+            return Response({'detail': 'UserProfile already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        return super().create(request, *args, **kwargs)
+    
+
+    @action(detail=False, methods=['patch'], url_path='me')
+    def update_me(self, request):
+        profile = UserProfile.objects.get(user=self.request.user)
+        serializer = self.get_serializer(profile, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
     
 
 

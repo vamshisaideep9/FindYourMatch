@@ -4,7 +4,7 @@ from .models import (
 )
 from .helper_functions import get_enum_choices
 from .models import (
-    GenderChoices, SmokingChoices, DrinkingChoices, PetChoices, EthnicityChoices,
+    GenderChoices, SmokingChoices, DrinkingChoices, EthnicityChoices,
     ReligionChoices, RelationshipGoalsChoices, AccountStatus, Category
 )
 
@@ -19,7 +19,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
     relationship_goals = serializers.ChoiceField(choices=get_enum_choices(RelationshipGoalsChoices))
     smoking = serializers.ChoiceField(choices=get_enum_choices(SmokingChoices), required=False)
     drinking = serializers.ChoiceField(choices=get_enum_choices(DrinkingChoices), required=False)
-    pets = serializers.ChoiceField(choices=get_enum_choices(PetChoices), required=False)
 
 
     interests = serializers.SlugRelatedField(

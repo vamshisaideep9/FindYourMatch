@@ -1,15 +1,15 @@
 import random
-import json
 import os
-import time
-from rest_framework import status, generics
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from celery.result import AsyncResult
+from rest_framework.permissions import IsAuthenticated
 from .models import AmoraQuestion, UserInterestResponse
-from userprofile.models import Category, Interest, UserProfile
-from .serializers import AmoraQuestionSerializer, UserInterestResponseSerializer
+from userprofile.models import Interest, UserProfile
+from .serializers import AmoraQuestionSerializer
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.conf import settings
 from chatbot.tasks import select_categories_for_user
 from dotenv import load_dotenv
 load_dotenv()
@@ -20,6 +20,8 @@ LANGSMITH_API_KEY=os.getenv("LANGSMITH_API_KEY")
 LANGSMITH_PROJECT=os.getenv("LANGSMITH_PROJECT")
 
 
+
+@method_decorator(cache_page(settings.CACHE_TTL), name="dispatch")
 class AmoraQuestionListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -29,6 +31,7 @@ class AmoraQuestionListView(APIView):
         selected_questions = questions[:10]
         serializer = AmoraQuestionSerializer(selected_questions, many=True)
         return Response(serializer.data)
+
 
 class UserInterestResponseView(APIView):
     permission_classes = [IsAuthenticated]
@@ -56,6 +59,7 @@ class UserCategoryRecommendationView(APIView):
         categories = select_categories_for_user(user.id) 
         return Response({"categories": categories, "message": "Processing completed successfully."})
     
+
 class UserInterestsView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -76,8 +80,6 @@ class UserInterestsView(APIView):
             "interests": categorized_interests, 
             "message": "Interests Fetched Successfully."
         })
-    
-
 
 class SaveUserInterestsView(APIView):
     permission_classes = [IsAuthenticated]
